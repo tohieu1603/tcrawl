@@ -320,9 +320,10 @@ class DienmayxanhScraper(BaseScraper):
             highlights = [self.clean_text(li.text) for li in highlight_items[:5]]
             product.short_description = ' | '.join(highlights)[:500]
 
-        # Description
-        desc_elem = soup.select_one('.box-des article, .article-content, .product-article')
+        # Description - lấy từ tab "Thông tin sản phẩm" (có ảnh, h1, h2, ...)
+        desc_elem = soup.select_one('.description.tab-content .text-detail, .box-des article, .article-content, .product-article')
         if desc_elem:
+            # Lấy full HTML để giữ cấu trúc h1, h2, img, ...
             product.description = str(desc_elem)
 
         # Images - CHỈ lấy từ gallery sản phẩm (owl-dots)
