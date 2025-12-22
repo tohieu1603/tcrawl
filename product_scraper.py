@@ -340,8 +340,14 @@ class DienmayxanhScraper(BaseScraper):
                         match = re.search(r'(https://cdn[^,\s]+)', src)
                         if match:
                             src = match.group(1)
-                    # Remove size suffix (180x120, 100x100, etc.)
-                    src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
+                    # Remove SMALL thumbnail size suffix only (180x120, 100x100, etc.)
+                    # Keep large sizes like 1920x1080 (actual image)
+                    size_match = re.search(r'-?(\d+)x(\d+)(?=\.\w+$)', src)
+                    if size_match:
+                        w, h = int(size_match.group(1)), int(size_match.group(2))
+                        # Only remove if it's a small thumbnail (< 500px)
+                        if w < 500 and h < 500:
+                            src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
                     # Handle cdnv2 URLs
                     src = src.replace('cdnv2.tgdd.vn/mwg-static/dmx/', 'cdn.tgdd.vn/')
                     if src not in product.images and 'icon' not in src.lower():
@@ -363,7 +369,12 @@ class DienmayxanhScraper(BaseScraper):
                 for img in img_elems[:10]:  # Limit 10 ảnh
                     src = img.get('data-src') or img.get('src')
                     if src and ('cdn' in src or 'http' in src):
-                        src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
+                        # Only remove small thumbnail sizes
+                        size_match = re.search(r'-?(\d+)x(\d+)(?=\.\w+$)', src)
+                        if size_match:
+                            w, h = int(size_match.group(1)), int(size_match.group(2))
+                            if w < 500 and h < 500:
+                                src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
                         if src not in product.images and 'icon' not in src.lower():
                             product.images.append(src)
                 if product.images:
