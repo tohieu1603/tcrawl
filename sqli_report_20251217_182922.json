@@ -1,0 +1,619 @@
+{
+  "scan_info": {
+    "target": "http://localhost:3001/api/products?name=test&category=1",
+    "method": "GET",
+    "timestamp": "2025-12-17 18:29:22",
+    "database_detected": "Unknown",
+    "waf_detected": null
+  },
+  "summary": {
+    "total_tests": 100,
+    "vulnerabilities_found": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0
+  },
+  "vulnerabilities": [],
+  "all_tests": [
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "name",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Time-based Blind",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Error-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Boolean-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "UNION-based",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    },
+    {
+      "parameter": "category",
+      "type": "Comment Bypass",
+      "vulnerable": false,
+      "severity": "INFO"
+    }
+  ]
+}
