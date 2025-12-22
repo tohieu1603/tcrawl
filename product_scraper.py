@@ -847,13 +847,23 @@ Hỗ trợ các trang:
   - Và các trang khác (generic scraper)
         """
     )
-    parser.add_argument('urls', nargs='+', help='URL sản phẩm cần cào')
+    parser.add_argument('urls', nargs='*', help='URL sản phẩm cần cào')
+    parser.add_argument('-f', '--file', help='File chứa danh sách URL (mỗi dòng 1 URL)')
     parser.add_argument('-o', '--output', default=None, help='File Excel output (default: products_YYMMDD_HHMMSS.xlsx)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Hiển thị chi tiết')
     parser.add_argument('--selenium', '-s', action='store_true',
                         help='Dùng Selenium để cào trang có JavaScript (cần cài: pip install selenium)')
 
     args = parser.parse_args()
+
+    # Load URLs from file if provided
+    if args.file:
+        with open(args.file, 'r', encoding='utf-8') as f:
+            file_urls = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+            args.urls = args.urls + file_urls if args.urls else file_urls
+
+    if not args.urls:
+        parser.error('Cần ít nhất 1 URL hoặc file chứa URL (-f)')
 
     # Check Selenium availability
     if args.selenium and not SELENIUM_AVAILABLE:
