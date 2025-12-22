@@ -37,6 +37,18 @@ except ImportError as e:
     print("pip install requests beautifulsoup4 openpyxl lxml")
     sys.exit(1)
 
+# Optional Selenium support for JS-rendered pages
+SELENIUM_AVAILABLE = False
+try:
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    pass
+
 
 @dataclass
 class ProductData:
@@ -73,13 +85,45 @@ class ProductData:
 class BaseScraper(ABC):
     """Base class cho các scraper"""
 
-    def __init__(self):
+    def __init__(self, use_selenium: bool = False):
+        self.use_selenium = use_selenium and SELENIUM_AVAILABLE
+        self.driver = None
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0',
         })
+
+    def _init_selenium(self):
+        """Initialize Selenium WebDriver"""
+        if not SELENIUM_AVAILABLE:
+            print("Selenium not available. Install: pip install selenium")
+            return None
+        if self.driver is None:
+            options = Options()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')
+            options.add_argument('--window-size=1920,1080')
+            options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36')
+            self.driver = webdriver.Chrome(options=options)
+        return self.driver
+
+    def _close_selenium(self):
+        """Close Selenium WebDriver"""
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
 
     @abstractmethod
     def can_handle(self, url: str) -> bool:
@@ -91,14 +135,56 @@ class BaseScraper(ABC):
         """Cào dữ liệu sản phẩm từ URL"""
         pass
 
-    def fetch_page(self, url: str) -> BeautifulSoup:
-        """Fetch và parse HTML page"""
+    def fetch_page(self, url: str, retries: int = 3) -> BeautifulSoup:
+        """Fetch và parse HTML page với retry"""
+        # Use Selenium if enabled (for JS-rendered pages)
+        if self.use_selenium:
+            return self._fetch_with_selenium(url)
+
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        for attempt in range(retries):
+            try:
+                # Add referer header based on domain
+                from urllib.parse import urlparse
+                parsed = urlparse(url)
+                self.session.headers['Referer'] = f"{parsed.scheme}://{parsed.netloc}/"
+
+                response = self.session.get(url, timeout=30, verify=False)
+                response.raise_for_status()
+                return BeautifulSoup(response.text, 'lxml')
+            except Exception as e:
+                if attempt < retries - 1:
+                    print(f"Retry {attempt + 1}/{retries} after error: {e}")
+                    import time
+                    time.sleep(2)
+                else:
+                    print(f"Error fetching {url}: {e}")
+                    raise
+
+    def _fetch_with_selenium(self, url: str) -> BeautifulSoup:
+        """Fetch page using Selenium for JS-rendered content"""
+        driver = self._init_selenium()
+        if not driver:
+            raise RuntimeError("Selenium driver not available")
+
         try:
-            response = self.session.get(url, timeout=30)
-            response.raise_for_status()
-            return BeautifulSoup(response.text, 'lxml')
+            print(f"  Using Selenium to fetch {url}...")
+            driver.get(url)
+            # Wait for gallery images to load
+            time.sleep(3)
+            # Try to wait for owl-dots to appear
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, ".owl-dots, .gallery, .slider-product"))
+                )
+            except Exception:
+                pass  # Continue even if not found
+            html = driver.page_source
+            return BeautifulSoup(html, 'lxml')
         except Exception as e:
-            print(f"Error fetching {url}: {e}")
+            print(f"Selenium error: {e}")
             raise
 
     def clean_text(self, text: Optional[str]) -> str:
@@ -239,21 +325,49 @@ class DienmayxanhScraper(BaseScraper):
         if desc_elem:
             product.description = str(desc_elem)
 
-        # Images - nhiều selectors
-        img_selectors = [
-            'img[data-src*="cdn"]', '.gallery img', '.owl-thumbs img',
-            '.slider-product img', '.owl-carousel img', 'img[src*="cdn"]'
-        ]
-        for selector in img_selectors:
-            img_elems = soup.select(selector)
-            for img in img_elems:
-                src = img.get('data-src') or img.get('src')
-                if src and ('cdn' in src or 'http' in src):
-                    # Get full size image
-                    src = re.sub(r'/\d+_\d+_\d+/', '/Original/', src)
-                    src = re.sub(r'_\d+x\d+\.', '.', src)
+        # Images - CHỈ lấy từ gallery sản phẩm (owl-dots)
+        # Priority 1: owl-dots thumbnails (gallery chính)
+        owl_dots = soup.select('.owl-dots button img, .owl-dots .owl-dot img')
+        if owl_dots:
+            for img in owl_dots:
+                src = img.get('src') or img.get('data-src')
+                if src:
+                    # Convert thumbnail URL to full size
+                    # Pattern: https://img.tgdd.vn/imgt/f_webp.../https://cdn.tgdd.vn/...180x120.jpg
+                    # -> https://cdn.tgdd.vn/...jpg (original)
+                    if 'imgt/' in src and 'https://cdn' in src:
+                        # Extract original URL from wrapper
+                        match = re.search(r'(https://cdn[^,\s]+)', src)
+                        if match:
+                            src = match.group(1)
+                    # Remove size suffix (180x120, 100x100, etc.)
+                    src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
+                    # Handle cdnv2 URLs
+                    src = src.replace('cdnv2.tgdd.vn/mwg-static/dmx/', 'cdn.tgdd.vn/')
                     if src not in product.images and 'icon' not in src.lower():
                         product.images.append(src)
+
+        # Priority 2: Main slider image (ảnh lớn đầu tiên)
+        if not product.images:
+            main_img = soup.select_one('.owl-carousel .owl-item.active img, .slide-product img')
+            if main_img:
+                src = main_img.get('src') or main_img.get('data-src')
+                if src and src not in product.images:
+                    product.images.append(src)
+
+        # Priority 3: Fallback - ảnh từ gallery container cụ thể
+        if not product.images:
+            gallery_selectors = ['.gallery-product img', '.slider-product img', '.product-slide img']
+            for selector in gallery_selectors:
+                img_elems = soup.select(selector)
+                for img in img_elems[:10]:  # Limit 10 ảnh
+                    src = img.get('data-src') or img.get('src')
+                    if src and ('cdn' in src or 'http' in src):
+                        src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
+                        if src not in product.images and 'icon' not in src.lower():
+                            product.images.append(src)
+                if product.images:
+                    break
 
         # Thông số kỹ thuật - nhiều patterns
         spec_selectors = [
@@ -553,12 +667,13 @@ class GenericScraper(BaseScraper):
 class ProductScraperManager:
     """Manager để chọn scraper phù hợp"""
 
-    def __init__(self):
+    def __init__(self, use_selenium: bool = False):
+        self.use_selenium = use_selenium
         self.scrapers: List[BaseScraper] = [
-            DienmayxanhScraper(),
-            CellphonesScraper(),
-            FPTShopScraper(),
-            GenericScraper(),  # Fallback
+            DienmayxanhScraper(use_selenium=use_selenium),
+            CellphonesScraper(use_selenium=use_selenium),
+            FPTShopScraper(use_selenium=use_selenium),
+            GenericScraper(use_selenium=use_selenium),  # Fallback
         ]
 
     def scrape(self, url: str) -> ProductData:
@@ -566,7 +681,11 @@ class ProductScraperManager:
         for scraper in self.scrapers:
             if scraper.can_handle(url):
                 print(f"Using scraper: {scraper.__class__.__name__}")
-                return scraper.scrape(url)
+                if self.use_selenium:
+                    print("  (with Selenium for JS content)")
+                result = scraper.scrape(url)
+                scraper._close_selenium()  # Cleanup
+                return result
         raise ValueError(f"No scraper available for URL: {url}")
 
 
@@ -720,8 +839,17 @@ Hỗ trợ các trang:
     parser.add_argument('urls', nargs='+', help='URL sản phẩm cần cào')
     parser.add_argument('-o', '--output', default=None, help='File Excel output (default: products_YYMMDD_HHMMSS.xlsx)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Hiển thị chi tiết')
+    parser.add_argument('--selenium', '-s', action='store_true',
+                        help='Dùng Selenium để cào trang có JavaScript (cần cài: pip install selenium)')
 
     args = parser.parse_args()
+
+    # Check Selenium availability
+    if args.selenium and not SELENIUM_AVAILABLE:
+        print("⚠️  Selenium không khả dụng. Cài đặt: pip install selenium")
+        print("   Và cần có ChromeDriver trong PATH")
+        print("   Tiếp tục với requests...")
+        args.selenium = False
 
     # Default output filename
     if not args.output:
@@ -729,7 +857,7 @@ Hỗ trợ các trang:
         args.output = f'products_{timestamp}.xlsx'
 
     # Scrape
-    manager = ProductScraperManager()
+    manager = ProductScraperManager(use_selenium=args.selenium)
     products = []
 
     for url in args.urls:
