@@ -416,46 +416,164 @@ class DienmayxanhScraper(BaseScraper):
                     if len(product.images) >= 10:
                         break
 
-        # Thông số kỹ thuật - nhiều patterns
-        spec_selectors = [
-            '.parameter li', '.box-specifi li', '.specifications tr',
-            '.technical li', '.spec-list li', 'ul.specifi li'
-        ]
+        # Thông số kỹ thuật - lấy theo từng section/group
+        # DMX có cấu trúc accordion: mỗi section có title riêng
         display_order = 1
-        for selector in spec_selectors:
-            spec_items = soup.select(selector)
-            for item in spec_items:
-                # Pattern 1: separate elements
-                name_elem = item.select_one('.tit, .name, .label, td:first-child, span:first-child')
-                value_elem = item.select_one('.result, .value, td:last-child, span:last-child')
+        seen_attrs = set()  # Tránh duplicate
 
-                if name_elem and value_elem and name_elem != value_elem:
-                    attr_name = self.clean_text(name_elem.text).rstrip(':')
-                    attr_value = self.clean_text(value_elem.text)
-                    if attr_name and attr_value and attr_name != attr_value:
-                        product.attributes.append({
-                            'attribute_name': attr_name,
-                            'value': attr_value,
-                            'display_group': 'Thông số kỹ thuật',
-                            'display_order': display_order
-                        })
-                        display_order += 1
-                else:
-                    # Pattern 2: text with colon separator
-                    text = self.clean_text(item.text)
-                    if ':' in text:
-                        parts = text.split(':', 1)
-                        if len(parts) == 2:
-                            attr_name = parts[0].strip()
-                            attr_value = parts[1].strip()
-                            if attr_name and attr_value:
-                                product.attributes.append({
-                                    'attribute_name': attr_name,
-                                    'value': attr_value,
-                                    'display_group': 'Thông số kỹ thuật',
-                                    'display_order': display_order
-                                })
-                                display_order += 1
+        # Mapping attribute names to display groups based on DMX structure
+        ATTR_GROUP_MAPPING = {
+            # Thông tin sản phẩm
+            'Loại máy': 'Thông tin sản phẩm',
+            'Inverter': 'Thông tin sản phẩm',
+            'Công suất làm lạnh': 'Thông tin sản phẩm',
+            'Công suất sưởi ấm': 'Thông tin sản phẩm',
+            'Phạm vi làm lạnh hiệu quả': 'Thông tin sản phẩm',
+            'Độ ồn trung bình': 'Thông tin sản phẩm',
+            'Dòng sản phẩm': 'Thông tin sản phẩm',
+            'Sản xuất tại': 'Thông tin sản phẩm',
+            'Thời gian bảo hành cục lạnh, cục nóng': 'Thông tin sản phẩm',
+            'Thời gian bảo hành máy nén': 'Thông tin sản phẩm',
+            'Chất liệu dàn tản nhiệt': 'Thông tin sản phẩm',
+            'Loại Gas': 'Thông tin sản phẩm',
+            'Loại gas': 'Thông tin sản phẩm',
+            'Hãng': 'Thông tin sản phẩm',
+
+            # Mức tiêu thụ điện năng
+            'Tiêu thụ điện': 'Mức tiêu thụ điện năng',
+            'Nhãn năng lượng': 'Mức tiêu thụ điện năng',
+            'Công nghệ tiết kiệm điện': 'Mức tiêu thụ điện năng',
+
+            # Công nghệ làm lạnh
+            'Công nghệ làm lạnh nhanh': 'Công nghệ làm lạnh',
+            'Lọc bụi, kháng khuẩn, khử mùi': 'Công nghệ làm lạnh',
+            'Chế độ gió': 'Công nghệ làm lạnh',
+            'Chức năng hút ẩm': 'Công nghệ làm lạnh',
+
+            # Tiện ích
+            'Tiện ích': 'Tiện ích',
+            'Sleep Mode': 'Tiện ích',
+            'Điều khiển bằng giọng nói': 'Tiện ích',
+            'Điều khiển qua WiFi': 'Tiện ích',
+
+            # Thông số kích thước/lắp đặt
+            'Kích thước dàn lạnh': 'Thông số kích thước/lắp đặt',
+            'Khối lượng dàn lạnh': 'Thông số kích thước/lắp đặt',
+            'Kích thước dàn nóng': 'Thông số kích thước/lắp đặt',
+            'Khối lượng dàn nóng': 'Thông số kích thước/lắp đặt',
+            'Chiều dài lắp đặt ống đồng': 'Thông số kích thước/lắp đặt',
+            'Chiều cao lắp đặt tối đa giữa cục nóng-lạnh': 'Thông số kích thước/lắp đặt',
+            'Dòng điện vào': 'Thông số kích thước/lắp đặt',
+            'Dòng điện hoạt động': 'Thông số kích thước/lắp đặt',
+            'Kích thước ống đồng': 'Thông số kích thước/lắp đặt',
+            'Số lượng kết nối dàn lạnh tối đa': 'Thông số kích thước/lắp đặt',
+        }
+
+        def get_display_group(attr_name):
+            """Xác định display group dựa trên tên attribute"""
+            # Exact match
+            if attr_name in ATTR_GROUP_MAPPING:
+                return ATTR_GROUP_MAPPING[attr_name]
+            # Partial match
+            attr_lower = attr_name.lower()
+            if any(k in attr_lower for k in ['kích thước', 'khối lượng', 'lắp đặt', 'chiều', 'ống đồng', 'dòng điện']):
+                return 'Thông số kích thước/lắp đặt'
+            if any(k in attr_lower for k in ['tiêu thụ điện', 'năng lượng', 'tiết kiệm điện']):
+                return 'Mức tiêu thụ điện năng'
+            if any(k in attr_lower for k in ['làm lạnh', 'lọc bụi', 'kháng khuẩn', 'gió', 'hút ẩm']):
+                return 'Công nghệ làm lạnh'
+            if any(k in attr_lower for k in ['tiện ích', 'sleep', 'wifi', 'giọng nói', 'điều khiển']):
+                return 'Tiện ích'
+            return 'Thông tin sản phẩm'
+
+        def add_attribute(attr_name, attr_value, group_name=None):
+            nonlocal display_order
+            key = (attr_name, attr_value)
+            if key not in seen_attrs and attr_name and attr_value and attr_name != attr_value:
+                seen_attrs.add(key)
+                # Use mapping to determine group if not provided or is default
+                final_group = group_name if group_name and group_name != 'Thông số kỹ thuật' else get_display_group(attr_name)
+                product.attributes.append({
+                    'attribute_name': attr_name,
+                    'value': attr_value,
+                    'display_group': final_group,
+                    'display_order': display_order
+                })
+                display_order += 1
+
+        # Pattern 1: DMX - accordion/collapsible sections với title (Thông tin sản phẩm, Mức tiêu thụ điện năng, etc.)
+        # Selector cho các section có title expandable
+        section_selectors = [
+            '.parameter .item',          # section trong .parameter
+            '.box04 .item',              # section trong box04
+            '.specifi .item',            # section trong specifi
+            '.box-specifi-grid > div',   # direct children
+            'section.parameter',         # section element
+        ]
+
+        for selector in section_selectors:
+            sections = soup.select(selector)
+            for section in sections:
+                # Lấy tên group từ title của section (h2, h3, .title, etc.)
+                title_elem = section.select_one('h2, h3, .title, .tit-h3, .card-header, > p.title, > span.title')
+                group_name = self.clean_text(title_elem.text) if title_elem else 'Thông số kỹ thuật'
+                # Loại bỏ icon/arrow text
+                group_name = group_name.replace('keyboard_arrow_down', '').replace('keyboard_arrow_up', '').strip()
+
+                # Lấy các thuộc tính trong section này
+                spec_items = section.select('li, tr, .row')
+                for item in spec_items:
+                    name_elem = item.select_one('.tit, .name, .label, td:first-child, span:first-child, aside:first-child, p:first-child')
+                    value_elem = item.select_one('.result, .value, td:last-child, span:last-child, aside:last-child, p:last-child')
+
+                    if name_elem and value_elem and name_elem != value_elem:
+                        attr_name = self.clean_text(name_elem.text).rstrip(':')
+                        attr_value = self.clean_text(value_elem.text)
+                        add_attribute(attr_name, attr_value, group_name)
+
+        # Pattern 2: DMX - direct li elements trong .parameter (không có section cha)
+        if not product.attributes:
+            current_group = 'Thông số kỹ thuật'
+            param_container = soup.select_one('.parameter, .box-specifi, .box04')
+            if param_container:
+                # Duyệt qua tất cả children để track group titles
+                for child in param_container.children:
+                    if hasattr(child, 'name'):
+                        # Check if this is a group title
+                        if child.name in ['h2', 'h3', 'p'] and 'title' in (child.get('class') or []):
+                            current_group = self.clean_text(child.text)
+                        elif child.name == 'ul':
+                            # Process li items in this ul
+                            for li in child.select('li'):
+                                name_elem = li.select_one('.tit, .name, span:first-child')
+                                value_elem = li.select_one('.result, .value, span:last-child')
+                                if name_elem and value_elem and name_elem != value_elem:
+                                    attr_name = self.clean_text(name_elem.text).rstrip(':')
+                                    attr_value = self.clean_text(value_elem.text)
+                                    add_attribute(attr_name, attr_value, current_group)
+
+        # Pattern 3: Fallback - tìm tất cả li với class parameter hoặc specifi
+        if not product.attributes:
+            spec_selectors = ['.parameter li', '.box-specifi li', '.specifications tr', 'ul.specifi li']
+            for selector in spec_selectors:
+                spec_items = soup.select(selector)
+                for item in spec_items:
+                    name_elem = item.select_one('.tit, .name, .label, td:first-child, span:first-child')
+                    value_elem = item.select_one('.result, .value, td:last-child, span:last-child')
+
+                    if name_elem and value_elem and name_elem != value_elem:
+                        attr_name = self.clean_text(name_elem.text).rstrip(':')
+                        attr_value = self.clean_text(value_elem.text)
+                        add_attribute(attr_name, attr_value, 'Thông số kỹ thuật')
+                    else:
+                        # Pattern: text with colon separator
+                        text = self.clean_text(item.text)
+                        if ':' in text:
+                            parts = text.split(':', 1)
+                            if len(parts) == 2:
+                                attr_name = parts[0].strip()
+                                attr_value = parts[1].strip()
+                                add_attribute(attr_name, attr_value, 'Thông số kỹ thuật')
 
         # Variants (màu sắc, dung lượng)
         variant_selectors = ['.box-color a', '.list-color a', '.box-choose a', '.choose-attr a']
