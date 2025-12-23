@@ -204,12 +204,14 @@ class BaseScraper(ABC):
         return 0
 
     def generate_sku(self, name: str) -> str:
-        """Generate SKU prefix từ tên sản phẩm"""
-        # Lấy chữ cái đầu của mỗi từ + timestamp
-        words = name.split()[:3]
-        prefix = ''.join(w[0].upper() for w in words if w)
-        timestamp = datetime.now().strftime('%y%m%d%H%M')
-        return f"{prefix}-{timestamp}"
+        """Generate SKU prefix từ tên sản phẩm - unique với microseconds"""
+        import random
+        # Lấy chữ cái đầu của mỗi từ + timestamp + random
+        words = name.split()[:4]
+        prefix = ''.join(w[0].upper() for w in words if w and w[0].isalpha())[:4]
+        timestamp = datetime.now().strftime('%y%m%d%H%M%S')
+        random_suffix = random.randint(100, 999)
+        return f"{prefix}-{timestamp}-{random_suffix}"
 
     def generate_slug(self, name: str) -> str:
         """Generate slug từ tên sản phẩm"""
@@ -237,6 +239,63 @@ class BaseScraper(ABC):
         # Remove leading/trailing hyphens
         slug = slug.strip('-')
         return slug
+
+    def _html_to_markdown(self, element) -> str:
+        """Convert HTML element to Markdown (h1, h2, h3, p, strong, em, img, a)"""
+        md_lines = []
+
+        for child in element.descendants:
+            if child.name == 'h1':
+                md_lines.append(f"\n# {self.clean_text(child.get_text())}\n")
+            elif child.name == 'h2':
+                md_lines.append(f"\n## {self.clean_text(child.get_text())}\n")
+            elif child.name == 'h3':
+                md_lines.append(f"\n### {self.clean_text(child.get_text())}\n")
+            elif child.name == 'h4':
+                md_lines.append(f"\n#### {self.clean_text(child.get_text())}\n")
+            elif child.name == 'img':
+                src = child.get('data-src') or child.get('src')
+                alt = child.get('alt', '')
+                if src and 'cdn' in src:
+                    md_lines.append(f"\n![{alt}]({src})\n")
+            elif child.name == 'p':
+                text = self.clean_text(child.get_text())
+                if text and not any(text in line for line in md_lines[-3:] if line):
+                    # Convert inline elements
+                    p_content = self._convert_inline(child)
+                    if p_content.strip():
+                        md_lines.append(f"\n{p_content}\n")
+
+        # Clean up multiple newlines
+        result = '\n'.join(md_lines)
+        result = re.sub(r'\n{3,}', '\n\n', result)
+        return result.strip()
+
+    def _convert_inline(self, element) -> str:
+        """Convert inline elements (strong, em, a) in a paragraph"""
+        from bs4 import NavigableString
+        result = []
+        for child in element.children:
+            if isinstance(child, NavigableString):
+                text = str(child).strip()
+                if text:
+                    result.append(text)
+            elif child.name == 'strong' or child.name == 'b':
+                result.append(f"**{self.clean_text(child.get_text())}**")
+            elif child.name == 'em' or child.name == 'i':
+                result.append(f"*{self.clean_text(child.get_text())}*")
+            elif child.name == 'a':
+                href = child.get('href', '')
+                text = self.clean_text(child.get_text())
+                if href and text:
+                    result.append(f"[{text}]({href})")
+                else:
+                    result.append(text)
+            elif child.name == 'br':
+                result.append('\n')
+            elif hasattr(child, 'children'):
+                result.append(self._convert_inline(child))
+        return ' '.join(result)
 
 
 class DienmayxanhScraper(BaseScraper):
@@ -320,66 +379,42 @@ class DienmayxanhScraper(BaseScraper):
             highlights = [self.clean_text(li.text) for li in highlight_items[:5]]
             product.short_description = ' | '.join(highlights)[:500]
 
-        # Description - lấy từ tab "Thông tin sản phẩm" (có ảnh, h1, h2, ...)
+        # Description - lấy từ tab "Thông tin sản phẩm" và convert sang Markdown
         desc_elem = soup.select_one('.description.tab-content .text-detail, .box-des article, .article-content, .product-article')
         if desc_elem:
-            # Lấy full HTML để giữ cấu trúc h1, h2, img, ...
-            product.description = str(desc_elem)
+            product.description = self._html_to_markdown(desc_elem)
 
-        # Images - CHỈ lấy từ gallery sản phẩm (owl-dots)
-        # Priority 1: owl-dots thumbnails (gallery chính)
-        owl_dots = soup.select('.owl-dots button img, .owl-dots .owl-dot img')
-        if owl_dots:
-            for img in owl_dots:
-                src = img.get('src') or img.get('data-src')
-                if src:
-                    # Convert thumbnail URL to full size
-                    # Pattern: https://img.tgdd.vn/imgt/f_webp.../https://cdn.tgdd.vn/...180x120.jpg
-                    # -> https://cdn.tgdd.vn/...jpg (original)
-                    if 'imgt/' in src and 'https://cdn' in src:
-                        # Extract original URL from wrapper
-                        match = re.search(r'(https://cdn[^,\s]+)', src)
-                        if match:
-                            src = match.group(1)
-                    # Remove SMALL thumbnail size suffix only (180x120, 100x100, etc.)
-                    # Keep large sizes like 1920x1080 (actual image)
-                    size_match = re.search(r'-?(\d+)x(\d+)(?=\.\w+$)', src)
-                    if size_match:
-                        w, h = int(size_match.group(1)), int(size_match.group(2))
-                        # Only remove if it's a small thumbnail (< 500px)
-                        if w < 500 and h < 500:
-                            src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
-                    # Handle cdnv2 URLs
-                    src = src.replace('cdnv2.tgdd.vn/mwg-static/dmx/', 'cdn.tgdd.vn/')
-                    if src not in product.images and 'icon' not in src.lower():
-                        product.images.append(src)
+        # Images - Lấy từ HTML với nhiều phương pháp
+        # Priority 1: Tìm ảnh sản phẩm từ mwg-static/Products (ảnh chính thức)
+        product_img_pattern = re.compile(r'https://cdnv2\.tgdd\.vn/mwg-static/dmx/Products/Images/\d+/\d+/[^"\'>\s]+\.(jpg|png|webp)', re.I)
+        found_urls = product_img_pattern.findall(html_text)
+        # Lấy unique URLs từ regex match
+        all_product_urls = set()
+        for match in re.finditer(product_img_pattern, html_text):
+            url = match.group(0)
+            # Loại bỏ thumb nhỏ, giữ ảnh lớn
+            if 'thumb' not in url.lower() or '550x' in url or '1020x' in url:
+                # Chuẩn hóa URL - bỏ size suffix nhỏ
+                size_match = re.search(r'-(\d+)x(\d+)(?=[-.])', url)
+                if size_match:
+                    w, h = int(size_match.group(1)), int(size_match.group(2))
+                    if w < 300:
+                        continue  # Skip thumbnails
+                all_product_urls.add(url)
 
-        # Priority 2: Main slider image (ảnh lớn đầu tiên)
+        # Thêm vào danh sách ảnh (limit 10)
+        for url in list(all_product_urls)[:10]:
+            if url not in product.images:
+                product.images.append(url)
+
+        # Priority 2: Fallback - tìm trong img tags
         if not product.images:
-            main_img = soup.select_one('.owl-carousel .owl-item.active img, .slide-product img')
-            if main_img:
-                src = main_img.get('src') or main_img.get('data-src')
-                if src and src not in product.images:
+            for img in soup.select('img[src*="cdn"], img[data-src*="cdn"]'):
+                src = img.get('data-src') or img.get('src') or ''
+                if 'Products/Images' in src and src not in product.images:
                     product.images.append(src)
-
-        # Priority 3: Fallback - ảnh từ gallery container cụ thể
-        if not product.images:
-            gallery_selectors = ['.gallery-product img', '.slider-product img', '.product-slide img']
-            for selector in gallery_selectors:
-                img_elems = soup.select(selector)
-                for img in img_elems[:10]:  # Limit 10 ảnh
-                    src = img.get('data-src') or img.get('src')
-                    if src and ('cdn' in src or 'http' in src):
-                        # Only remove small thumbnail sizes
-                        size_match = re.search(r'-?(\d+)x(\d+)(?=\.\w+$)', src)
-                        if size_match:
-                            w, h = int(size_match.group(1)), int(size_match.group(2))
-                            if w < 500 and h < 500:
-                                src = re.sub(r'-?\d+x\d+(?=\.\w+$)', '', src)
-                        if src not in product.images and 'icon' not in src.lower():
-                            product.images.append(src)
-                if product.images:
-                    break
+                    if len(product.images) >= 10:
+                        break
 
         # Thông số kỹ thuật - nhiều patterns
         spec_selectors = [
@@ -772,11 +807,12 @@ class ExcelExporter:
             ws.column_dimensions[col[0].column_letter].width = min(max_length + 2, 50)
 
     def _create_variants_sheet(self, ws, products: List[ProductData]):
-        """Tạo sheet Variants"""
+        """Tạo sheet Variants - khớp với ProductImportService"""
         headers = [
-            'product_sku_prefix', 'sku', 'name', 'option_1_type', 'option_1_value',
+            'product_sku_prefix', 'sku', 'option_1_type', 'option_1_value',
             'option_2_type', 'option_2_value', 'option_2_color_code',
-            'price', 'compare_at_price', 'stock_quantity', 'is_default', 'image_url'
+            'option_3_type', 'option_3_value',
+            'price', 'compare_at_price', 'cost_price', 'stock_quantity', 'is_default', 'image_url'
         ]
         self._set_header(ws, headers)
 
@@ -785,17 +821,19 @@ class ExcelExporter:
             for v in p.variants:
                 ws.cell(row=row, column=1, value=p.sku_prefix)
                 ws.cell(row=row, column=2, value=v.get('sku', ''))
-                ws.cell(row=row, column=3, value=v.get('name', ''))
-                ws.cell(row=row, column=4, value=v.get('option_1_type', ''))
-                ws.cell(row=row, column=5, value=v.get('option_1_value', ''))
-                ws.cell(row=row, column=6, value=v.get('option_2_type', ''))
-                ws.cell(row=row, column=7, value=v.get('option_2_value', ''))
-                ws.cell(row=row, column=8, value=v.get('option_2_color_code', ''))
-                ws.cell(row=row, column=9, value=v.get('price', 0))
-                ws.cell(row=row, column=10, value=v.get('compare_at_price', p.compare_at_price))
-                ws.cell(row=row, column=11, value=v.get('stock_quantity', 0))
-                ws.cell(row=row, column=12, value=v.get('is_default', False))
-                ws.cell(row=row, column=13, value=v.get('image_url', ''))
+                ws.cell(row=row, column=3, value=v.get('option_1_type', ''))
+                ws.cell(row=row, column=4, value=v.get('option_1_value', ''))
+                ws.cell(row=row, column=5, value=v.get('option_2_type', ''))
+                ws.cell(row=row, column=6, value=v.get('option_2_value', ''))
+                ws.cell(row=row, column=7, value=v.get('option_2_color_code', ''))
+                ws.cell(row=row, column=8, value=v.get('option_3_type', ''))
+                ws.cell(row=row, column=9, value=v.get('option_3_value', ''))
+                ws.cell(row=row, column=10, value=v.get('price', 0))
+                ws.cell(row=row, column=11, value=v.get('compare_at_price') or p.compare_at_price or None)
+                ws.cell(row=row, column=12, value=v.get('cost_price') or None)
+                ws.cell(row=row, column=13, value=v.get('stock_quantity', 0))
+                ws.cell(row=row, column=14, value=v.get('is_default', False))
+                ws.cell(row=row, column=15, value=v.get('image_url', ''))
                 row += 1
 
     def _create_attributes_sheet(self, ws, products: List[ProductData]):
